@@ -45,7 +45,7 @@ public:
 	UserInterface();
 	~UserInterface();
 	bool GetError();
-	bool RunningOne();
+	bool Running();
 
 private:
 	bool AllegroInit();
@@ -54,6 +54,7 @@ private:
 	void Dispatch();   
 	bool print_current_state(Estado);	
 	bool print_MainMenu();
+	bool print_blockSelection();
 
 	bool print_SelectJsons(vector<string>& nombres);
 	vector<string> lookForJsonFiles(const char * directoryName);

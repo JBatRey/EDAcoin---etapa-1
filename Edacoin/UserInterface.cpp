@@ -51,7 +51,7 @@ bool UserInterface::GetError()
 	return Error;
 }
 
-bool UserInterface::RunningOne()
+bool UserInterface::Running()
 {
 	if (checkIfEvent())
 	{
@@ -62,7 +62,7 @@ bool UserInterface::RunningOne()
 
 bool UserInterface::checkIfEvent(void)
 {
-	bool ret = false; 
+	bool isThereAnEvent = false; 
 
 	while (al_get_next_event(queue, &ev))
 	{
@@ -72,15 +72,15 @@ bool UserInterface::checkIfEvent(void)
 	if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
 	{
 		EventoActual = Event::Close;
-		ret = true;
+		isThereAnEvent = true;
 	}
 	
 	if (print_current_state(EstadoActual))				//Devuelve true si huvo un evento (Usuario presiono un boton)
 	{
-		ret = true;
+		isThereAnEvent = true;
 	}
 
-	return ret;
+	return isThereAnEvent;
 }
 
 void UserInterface::Dispatch(void)
@@ -93,6 +93,10 @@ void UserInterface::Dispatch(void)
 
 	case Event::Error:
 		cout << "Hubo un error, capo (Event::Error)" << endl;
+		break;
+
+	case Event::fileSelected:
+		EstadoActual = Estado::FileView;
 
 	default:
 		break;
@@ -108,7 +112,7 @@ bool UserInterface::print_current_state(Estado CurrentState)
 		if (print_MainMenu()) userEvento = true;
 		break;
 	case Estado::FileView:
-		//if(print_FileView()) userEvento = true;
+		if(print_blockSelection()) userEvento = true;
 		break;
 	case Estado::MerkelTree:					
 		//if(print_MerkerTree()) userEvento = true;
@@ -133,6 +137,7 @@ bool UserInterface::print_MainMenu(void)
 	ImGui::SetNextWindowSize(ImVec2(600, 150));
 
 		ImGui::Begin("Welcome to the EDAcoin", 0, window_flags);
+		
 		static char path[MAX_PATH];
 		ImGui::InputText("Directorio", path, sizeof(char) * MAX_PATH);
 
@@ -157,6 +162,37 @@ bool UserInterface::print_MainMenu(void)
 		ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
 		al_flip_display();
 		return eventHappened;
+
+}
+
+bool UserInterface::print_blockSelection(void)
+{
+	ImGui_ImplAllegro5_NewFrame();
+	ImGui::NewFrame();
+
+
+	ImGui::SetNextWindowPos(ImVec2(200, 10));
+	ImGui::SetNextWindowSize(ImVec2(600, 150));
+
+	ImGui::Begin("Welcome to the EDAcoin", 0, window_flags);
+
+	ImGui::Text("Hola!");
+
+	bool show_demo_window;
+	ImGui::ShowDemoWindow(&show_demo_window);
+
+	bool eventHappened = false;
+
+	ImGui::End();
+
+	//Rendering
+	ImGui::Render();
+
+	al_clear_to_color(al_map_rgb(211, 211, 211));
+
+	ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
+	al_flip_display();
+	return eventHappened;
 
 }
 	
@@ -206,7 +242,6 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 		}
 	}
 
-
 	if (ImGui::Button("Seleccionar"))
 	{
 		for (i = 0; i < nombres.size(); i++)
@@ -216,19 +251,18 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 			}
 		}
 
-		/*if(correct_block_format(directory + '/' + filename))
+		if(true /*parseallOk(directory + '/' + filename)*/)
 		{
 		EventoActual = Event::fileSelected;
+		return true;
 		}
 		else {
-		Impimir pop-up que avise que no tiene un formato válido (hubo un error en el parseo)
+		//Impimir pop-up que avise que no tiene un formato válido (hubo un error en el parseo)
 		}
 		
-		*/
 
 		cout << filename << endl;
 		cout << "full path: " << endl << directory + "/" + filename << endl;
-		return true;
 	}
 	else {
 		return false;

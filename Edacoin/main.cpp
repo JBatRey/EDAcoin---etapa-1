@@ -7,12 +7,12 @@ using namespace std;
 
 int main(void) {
 
-    UserInterface gui;
+    UserInterface gui; // <-- Contruís 
 
     if (!gui.GetError())
     {
         cout << "Gui correctly initialized!" << endl;
-        while (gui.RunningOne()) {
+        while (gui.Running()) {
         
         }
     }
