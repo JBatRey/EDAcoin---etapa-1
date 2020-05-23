@@ -2,7 +2,7 @@
 
 #define EURO_ASCII "    __    \n  _/  |_  \n / $$   \ \n/$$$$$$  |\n$$ \__$$/ \n$$      \ \n $$$$$$  |\n/  \__$$ |\n$$    $$/ \n $$$$$$/  \n   $$/    "
 
-UserInterface::UserInterface() : keys{ "blockid", "height", "merkleroot", "nTx", "nonce", "previousblockid", "tx" }
+UserInterface::UserInterface()
 {
 	if (AllegroInit() && ImguiInit())
 	{
@@ -162,13 +162,14 @@ bool UserInterface::print_MainMenu(void)
 		}
 	}
 	else {
-		for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			for (int i = 0; i < 6; i++) {
 				if (i != 0) {
-					ImGui::SameLine;
+					ImGui::SameLine();
 				}
 				ImGui::Text(EURO_ASCII);
+			}
 		}
-		
 	}
 	//entra aca solo si hubo un error en el parseo para mostrarlo en forma de pop-up
 	if (failed == true)
@@ -263,7 +264,7 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 			}
 		}
 
-		if (parseallOk(directory + "\\" + filename))
+		if (blockchainHandler.parseallOk(directory + "\\" + filename, &errorString))
 		{
 			EventoActual = Event::fileSelected;
 			eventHappened = true;
@@ -324,8 +325,6 @@ bool UserInterface::print_blockSelection(void)
 		ImGui::End();
 	}
 
-
-
 	//Rendering
 	ImGui::Render();
 
@@ -338,62 +337,13 @@ bool UserInterface::print_blockSelection(void)
 }
 
 
-bool UserInterface::parseallOk(string str)
-{
-	
-	bool retVal = false;
-	//Abro el archivo y lo asigno a mi variable miembro blocks (de tipo json)
-	std::ifstream blocks_file(str, std::ifstream::binary);
-
-	try {
-		blocks_file >> BlockChainJSON;
-		if (!BlockChainJSON.empty()) { //chequea que no esté vacío así no crashea todo con el parser
-
-		//Recorro todos los elementos de la lista y me fijo si cada diccionario tiene 7 keys
-			BlockChainJSON.size();
-			for (int i = 0; i < BlockChainJSON.size(); i++)
-			{
-				if (BlockChainJSON[i].size() != 7)
-				{
-					cout << "Error uno de los bloques tiene menos de 7 keys" << endl;
-					errorString = "Error parsing \nwrong key number!";
-					retVal = false;
-				}
-			}
-
-			//Recorro nuevamente todos los elementos de la lista y todos los elementos del diccionario 
-			//y para cada uno de ellos me fijo que su nombre corresponda con los del vector keys
-			for (auto item : BlockChainJSON)
-			{
-				for (int i = 0; i < item.size(); i++) //item.size es 7 igual ya lo comprobamos arriba
-				{
-					if (item.find(keys[i]) == item.end())
-					{
-						cout << "Error, una de las keys no corresponde con lo esperado" << endl;
-						errorString = "Error parsing \nwrong key value!";
-						retVal = false;
-					}
-				}
-			}
-
-			retVal = true;
-		}
-	}
-	catch (json::parse_error& e)
-	{
-		std::cerr << e.what() << std::endl;
-		errorString = "Error parsing \nEmpty or corrupt file!";
-	}
-	return retVal;
-}
-
 
 void UserInterface::blockActions() {
 
 	static int checked = -1;
-	for (int i = 0; i < BlockChainJSON.size(); i++)
+	for (int i = 0; i < blockchainHandler.BlockChainJSON.size(); i++)
 	{
-		string blockId = string(BlockChainJSON[i]["blockid"].get<string>());
+		string blockId = string(blockchainHandler.BlockChainJSON[i]["blockid"].get<string>());
 		ImGui::RadioButton(blockId.c_str(), &checked, i);
 	}
 
@@ -491,10 +441,10 @@ bool UserInterface::ImguiInit(void)
 
 void UserInterface::showBlockInfo(int index) {
 
-	displayInfo.blockId = "Block Id: " + BlockChainJSON[index]["blockid"].get<string>();
-	displayInfo.previousBlockId = "Previous block id: " + BlockChainJSON[index]["previousblockid"].get<string>();
-	displayInfo.NTransactions = "Number of transactions: " + to_string(BlockChainJSON[index]["nTx"].get<int>());
+	displayInfo.blockId = "Block Id: " + blockchainHandler.BlockChainJSON[index]["blockid"].get<string>();
+	displayInfo.previousBlockId = "Previous block id: " + blockchainHandler.BlockChainJSON[index]["previousblockid"].get<string>();
+	displayInfo.NTransactions = "Number of transactions: " + to_string(blockchainHandler.BlockChainJSON[index]["nTx"].get<int>());
 	displayInfo.BlockNumber = "Block number: " + to_string(index);
-	displayInfo.nonce = "Nonce: " + to_string(BlockChainJSON[index]["nonce"].get<int>());
+	displayInfo.nonce = "Nonce: " + to_string(blockchainHandler.BlockChainJSON[index]["nonce"].get<int>());
 	displayInfo.show = true;
 }

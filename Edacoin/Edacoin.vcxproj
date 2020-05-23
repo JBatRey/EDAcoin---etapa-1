@@ -155,9 +155,11 @@
     <ClCompile Include="Imgui_files\imgui_impl_allegro5.cpp" />
     <ClCompile Include="Imgui_files\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="blockchainHandler.cpp" />
     <ClCompile Include="UserInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="blockchainHandler.h" />
     <ClInclude Include="Imgui_files\imconfig.h" />
     <ClInclude Include="Imgui_files\imgui.h" />
     <ClInclude Include="Imgui_files\imgui_impl_allegro5.h" />

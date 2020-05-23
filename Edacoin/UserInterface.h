@@ -26,7 +26,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_acodec.h> 
 
-#include "json.hpp"
+#include "blockchainHandler.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
@@ -35,7 +35,7 @@
 #include "imgui_files/imgui_impl_allegro5.h"
 
 using namespace std;
-using json = nlohmann::json;
+
 namespace fs = boost::filesystem;
 
 enum class Event { Close, ShowMerkelTree, Error, fileSelected, dummyEvent, BackToMainMenu };
@@ -49,7 +49,6 @@ typedef struct {
 	string nonce;
 	bool show = false;
 } BlockInfo;
-
 
 class UserInterface
 {
@@ -68,7 +67,6 @@ private:
 	bool print_current_state(Estado);
 	bool print_MainMenu();
 	bool print_blockSelection();
-	bool parseallOk(string str);
 	bool print_SelectJsons(vector<string>& nombres);
 	vector<string> lookForJsonFiles(const char* directoryName);
 	void blockActions();
@@ -81,7 +79,7 @@ private:
 	ALLEGRO_EVENT timerev;
 	ALLEGRO_DISPLAY* display;
 	ALLEGRO_BITMAP* tempBitmap;
-	json BlockChainJSON;
+
 	bool Error;
 	bool close;
 	bool failed;
@@ -89,7 +87,6 @@ private:
 	bool correctlyInitialized;
 	bool WorkInProgress;
 	string directory;
-	vector<string> keys;
 	vector<string> jsonPaths;
 	string filename;
 	BlockInfo displayInfo;
@@ -97,4 +94,7 @@ private:
 	Estado EstadoActual;
 	ImGuiWindowFlags window_flags;
 	string errorString;
+
+	blockchainHandler blockchainHandler;
 };
+
