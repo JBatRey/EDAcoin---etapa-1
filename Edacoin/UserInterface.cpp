@@ -137,6 +137,9 @@ bool UserInterface::print_MainMenu(void)
 
 	ImGui::Begin("Welcome to the EDAcoin", 0, window_flags);
 
+	/*bool show_demo_window = true;
+	ImGui::ShowDemoWindow(&show_demo_window);*/
+
 	static char path[MAX_PATH];
 	ImGui::InputText("Directorio", path, sizeof(char) * MAX_PATH);
 
@@ -226,9 +229,10 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 				filename = nombres[checked];
 			}
 			else {
-				failed = true;
+				//sin esta parte daria un error al querer leer filename con nada guardado.
 				printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
 				ErrorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
+				failed = true;
 				return true;
 			}
 		}
@@ -269,10 +273,9 @@ bool UserInterface::print_blockSelection(void)
 	ImGui::End();
 
 	if (displayInfo.show) {
-		// TODO: NO SE BIEN PORQUE NO ME MUESTRA UNA NUEVA VENTANA
-		ImGui::SetNextWindowPos(ImVec2(400, 10));
+		//ImGui::SetNextWindowPos(ImVec2(400, 10));  //lo quite por conveniencia podemos ponerlo despues pero en una pos mas comoda
 		ImGui::SetNextWindowSize(ImVec2(600, 150));
-		ImGui::Begin(filename.c_str(), 0, window_flags);
+		ImGui::Begin("Info", 0, window_flags);
 		
 		ImGui::Text(displayInfo.blockId.c_str());
 		ImGui::Text(displayInfo.previousBlockId.c_str());
@@ -280,6 +283,10 @@ bool UserInterface::print_blockSelection(void)
 		ImGui::Text(displayInfo.NTransactions.c_str());
 		ImGui::Text(displayInfo.blockId.c_str());
 
+		if (ImGui::Button("Close"))
+		{
+			displayInfo.show = false;
+		}
 
 		ImGui::End();
 	}
