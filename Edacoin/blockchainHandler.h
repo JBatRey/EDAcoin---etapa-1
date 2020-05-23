@@ -17,13 +17,15 @@ class blockchainHandler {
 public:
 	blockchainHandler();
 	bool parseallOk(string filepath, string * ErrorString = 0);
-	string getFieldAsString(int blockNumber, const char * fieldname);
 	size_t chainSize(); 
 	json BlockChainJSON;
 	vector<string> getKeys() { return keys; }
-	//map returnFields();
+	string hexCodexASCII(unsigned int);
+	vector<vector<string>> makeMerkleTree(int blockNumber);
+
 	
 private:
 	vector<string> keys;
+	unsigned int generateID(unsigned char* str);
 	
 };

@@ -1,19 +1,23 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#define _CRT_NONSTDC_NO_DEPRECATE
+
 #include "blockchainHandler.h"
 
 #include <fstream>
+#include <sstream>
+#include <iomanip>
+
 
 size_t blockchainHandler::chainSize() { return BlockChainJSON.size(); }
 
-
 blockchainHandler::blockchainHandler() : keys{ "blockid", "height", "merkleroot", "nTx", "nonce", "previousblockid", "tx" } {};
 
-string blockchainHandler::getFieldAsString(int blockNumber, const char* fieldname) {
-	if (blockNumber < 0) {
-		return "";
-	}
-	else {
-		return string(BlockChainJSON[blockNumber][fieldname].get<string>());
-	}
+string blockchainHandler::hexCodexASCII(unsigned int number) {
+	std::stringstream ss;
+	ss << std::uppercase << std::setfill('0') << std::setw(8) << std::hex << number;
+
+	return ss.str();
+
 }
 
 bool blockchainHandler::parseallOk(string str, string * errorString)
@@ -27,7 +31,7 @@ bool blockchainHandler::parseallOk(string str, string * errorString)
 		blocks_file >> BlockChainJSON;
 		if (!BlockChainJSON.empty()) { //chequea que no esté vacío así no crashea todo con el parser
 
-		//Recorro todos los elementos de la lista y me fijo si cada diccionario tiene 7 keys
+		//Recorro todos los elementos de la vectora y me fijo si cada diccionario tiene 7 keys
 			BlockChainJSON.size();
 			for (int i = 0; i < BlockChainJSON.size(); i++)
 			{
@@ -39,7 +43,7 @@ bool blockchainHandler::parseallOk(string str, string * errorString)
 				}
 			}
 
-			//Recorro nuevamente todos los elementos de la lista y todos los elementos del diccionario 
+			//Recorro nuevamente todos los elementos de la vectora y todos los elementos del diccionario 
 			//y para cada uno de ellos me fijo que su nombre corresponda con los del vector keys
 			for (auto item : BlockChainJSON)
 			{
@@ -63,4 +67,87 @@ bool blockchainHandler::parseallOk(string str, string * errorString)
 		*errorString = "Error parsing \nEmpty or corrupt file!";
 	}
 	return retVal;
+}
+
+vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
+	vector<vector<string>> levels;
+	
+	// Hojas
+	vector<string> currentLevel;
+	for (auto transaction : BlockChainJSON[blockNumber]["tx"]) {
+		
+		string id = string(transaction["txid"].get<string>());
+		currentLevel.push_back(id);
+		
+	}
+	if (currentLevel.size() % 2) {
+		currentLevel.push_back(currentLevel.back());
+	}
+	levels.push_back(currentLevel);
+
+
+	// hashes
+
+	currentLevel.clear();
+	for (string id: levels.back()) {
+
+		unsigned char* oldID = new unsigned char[id.length() + 1]; //Copiado de stack overflow 
+		strcpy((char*)oldID, id.c_str());
+
+		int newID = generateID(oldID);
+		currentLevel.push_back(hexCodexASCII(newID));
+	}
+	if (currentLevel.size() % 2) {
+		currentLevel.push_back(levels[1].back());
+	}
+	levels.push_back(currentLevel);
+
+
+	while (levels.back().size() > 1) {
+		currentLevel.clear();
+
+
+		if (!(levels.back().size() % 2)) {
+			// Uno los hashes anteriores en el actual
+			for (int i = 1; i < levels.back().size(); i += 2) {
+				currentLevel.push_back(levels.back()[i - 1] + levels.back()[i]);
+			}
+		}
+		else {
+			int i;
+			for (i = 1; i < (levels.back().size() - 1); i += 2) {
+				currentLevel.push_back(levels.back()[i - 1] + levels.back()[i]);
+			}
+			currentLevel.push_back(levels.back()[i] + levels.back()[i]);
+		}
+
+
+		//re-hasheo el nivel actual
+		for (int i = 0; i < currentLevel.size(); i ++) {
+			
+			unsigned char* oldID = new unsigned char[currentLevel[i].length() + 1]; //Copiado de stack overflow 
+			strcpy((char*)oldID, currentLevel[i].c_str());
+
+			int newID = generateID(oldID);
+			currentLevel[i] = hexCodexASCII(newID);
+		}
+
+		//Agrego el nivel actual al vector
+		levels.push_back(currentLevel);
+	}
+
+	cout << "Nuestra merkle root: " << levels.back().back() << endl;
+	cout << "La merkle root del bloque: " << BlockChainJSON[blockNumber]["merkleroot"] << endl;
+
+
+	return levels;
+}
+
+unsigned int blockchainHandler::generateID(unsigned char* str)
+{
+	unsigned int id = 0;
+	int c;
+	while (c = *str++)
+		id = c + (id << 6) + (id << 16) - id;
+	return id;
 }

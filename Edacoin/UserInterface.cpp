@@ -351,22 +351,116 @@ void UserInterface::blockActions() {
 
 	if (ImGui::Button("Info"))
 	{
-		showBlockInfo(checked);
+		if (checked != -1) {
+			showBlockInfo(checked);
+		}
+		else {
+			//sin esta parte daria un error al querer leer filename con nada guardado.
+			printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
+			errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
+			failed = true;
+		}
+		
 	}
 
 	if (ImGui::Button("Calcular el Merkle root"))
 	{
-		// TODO: CALCULO DE MERKEL ROOT SE PUEDE MOSTRAR EN ESTA PANTALLA
+
+		if (checked != -1) {
+
+			ImGui::OpenPopup("Markel Root");
+
+			if (ImGui::BeginPopupModal("Markel Root", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				string makleRoot = blockchainHandler.makeMerkleTree(checked).back().back();
+				ImGui::Text(makleRoot.c_str());
+
+				if (ImGui::Button("OK", ImVec2(120, 0)))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+		}
+		else {
+			//sin esta parte daria un error al querer leer filename con nada guardado.
+			printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
+			errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
+			failed = true;
+		}
 	}
 
 	if (ImGui::Button("Validar el Merkle root"))
 	{
-		// TODO: VALIDAR DE MERKEL ROOT SE PUEDE MOSTRAR EN ESTA PANTALLA
+
+		if (checked != -1) {
+			string ourMakleRoot = blockchainHandler.makeMerkleTree(checked).back().back();
+			string blockMakleRoot = string(blockchainHandler.BlockChainJSON[checked]["merkleroot"].get<string>());
+			
+			ImGui::OpenPopup("Root validation");
+
+			if (ImGui::BeginPopupModal("Root validation", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				if (ourMakleRoot == blockMakleRoot) {
+
+				ImGui::Text("La makleroot del bloque es correcta!");
+				}
+				else {
+					ImGui::Text("La makleroot del bloque NO es correcta!");
+				}
+
+				if (ImGui::Button("OK", ImVec2(120, 0)))
+					{
+						errorString = "";
+						failed = false;
+						ImGui::CloseCurrentPopup();
+					}
+				ImGui::EndPopup();
+			}
+
+		}
+		else {
+			//sin esta parte daria un error al querer leer filename con nada guardado.
+			printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
+			errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
+			failed = true;
+		}
+
 	}
 
 	if (ImGui::Button("Merkle Tree"))
 	{
-		// TODO: ESTO IRIA EN OTRA PANTALLA APARTE COMO INFO
+		
+		if (checked != -1) {
+			vector<vector<string>> makleTree = blockchainHandler.makeMerkleTree(checked);
+			// TODO: ESTO IRIA EN OTRA PANTALLA APARTE COMO INFO
+		}
+		else {
+			//sin esta parte daria un error al querer leer filename con nada guardado.
+			printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
+			errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
+			failed = true;
+		}
+	}
+
+	if (failed == true)
+	{
+		ImGui::OpenPopup("Failed");
+
+		if (ImGui::BeginPopupModal("Failed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text(errorString.c_str());
+			ImGui::Separator();
+
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				errorString = "";
+				failed = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
 	}
 
 }
