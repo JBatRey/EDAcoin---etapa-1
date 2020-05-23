@@ -214,6 +214,7 @@ vector<string> UserInterface::lookForJsonFiles(const char* directoryName)
 
 bool UserInterface::print_SelectJsons(vector<string>& nombres)
 {
+	bool eventHappened;
 
 	static int checked = -1;
 	for (int i = 0; i < nombres.size(); i++)
@@ -240,19 +241,21 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 		if (parseallOk(directory + "\\" + filename))
 		{
 			EventoActual = Event::fileSelected;
-			return true;
+			eventHappened = true;
 		}
 		else {
 			//indico que fallo para que muestre luego el pop-up con el fallo
 			failed = true;
+			eventHappened = false;
 		}
 		
 		cout << filename << endl;
 		cout << "full path: " << endl << directory + "\\" + filename << endl;
 	}
 	else {
-		return false;
+		eventHappened = false;
 	}
+	return eventHappened;
 }
 
 bool UserInterface::print_blockSelection(void)
@@ -307,34 +310,47 @@ bool UserInterface::parseallOk(string str)
 {
 	//Abro el archivo y lo asigno a mi variable miembro blocks (de tipo json)
 	std::ifstream blocks_file(str, std::ifstream::binary);
-	blocks_file >> BlockChainJSON;
-	//Recorro todos los elementos de la lista y me fijo si cada diccionario tiene 7 keys
-	for (int i = 0; i < BlockChainJSON.size(); i++)
-	{
-		if (BlockChainJSON[i].size() != 7)
-		{
-			cout << "Error uno de los blockes tiene menos de 7 keys" << endl;
-			ErrorString = "Error uno de los blockes tiene menos de 7 keys";
-			return false;
-		}
-	}
 
-	//Recorro nuevamente todos los elementos de la lista y todos los elementos del diccionario 
-	//y para cada uno de ellos me fijo que su nombre corresponda con los del vector keys
-	for (auto item : BlockChainJSON)
-	{
-		for (int i = 0; i < item.size(); i++) //item.size es 7 igual ya lo comprobamos arriba
-		{
-			if (item.find(keys[i]) == item.end())
+	try {
+		blocks_file >> BlockChainJSON;
+		if (!BlockChainJSON.empty()) { //chequea que no esté vacío así no crashea todo con el parser
+
+		//Recorro todos los elementos de la lista y me fijo si cada diccionario tiene 7 keys
+			BlockChainJSON.size();
+			for (int i = 0; i < BlockChainJSON.size(); i++)
 			{
-				cout << "Error, una de las keys no corresponde con lo esperado" << endl;
-				ErrorString = "Error, una de las keys no corresponde con lo esperado";
-				return false;
+				if (BlockChainJSON[i].size() != 7)
+				{
+					cout << "Error uno de los blockes tiene menos de 7 keys" << endl;
+					ErrorString = "Error uno de los blockes tiene menos de 7 keys";
+					return false;
+				}
 			}
+
+			//Recorro nuevamente todos los elementos de la lista y todos los elementos del diccionario 
+			//y para cada uno de ellos me fijo que su nombre corresponda con los del vector keys
+			for (auto item : BlockChainJSON)
+			{
+				for (int i = 0; i < item.size(); i++) //item.size es 7 igual ya lo comprobamos arriba
+				{
+					if (item.find(keys[i]) == item.end())
+					{
+						cout << "Error, una de las keys no corresponde con lo esperado" << endl;
+						ErrorString = "Error, una de las keys no corresponde con lo esperado";
+						return false;
+					}
+				}
+			}
+
+			return true;
 		}
 	}
-
-	return true;
+	catch (json::parse_error& e)
+	{
+		std::cerr << e.what() << std::endl;
+		return false;
+	}
+	return false;
 }
 
 
