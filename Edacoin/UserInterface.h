@@ -8,6 +8,7 @@
 
 #define MAX_PATH 500
 #define MAX_FILES 40
+#define MAX_BLOCKS 40
 
 #include<vector>
 #include<string>
@@ -38,7 +39,16 @@ using json = nlohmann::json;
 namespace fs = boost::filesystem;
 
 enum class Event { Close, ShowMerkelTree, Error, fileSelected, dummyEvent };
-enum class Estado { MainMenu, FileView, MerkelTree, Error };
+enum class Estado { MainMenu, FileView, Error };
+
+typedef struct {
+	string blockId;
+	string previousBlockId;
+	string NTransactions;
+	string BlockNumber;
+	string nonce;
+	bool show = false;
+} BlockInfo;
 
 
 class UserInterface
@@ -61,6 +71,8 @@ private:
 	bool parseallOk(string str);
 	bool print_SelectJsons(vector<string>& nombres);
 	vector<string> lookForJsonFiles(const char* directoryName);
+	void blockActions();
+	void showBlockInfo(int index);
 
 	ALLEGRO_TIMER* timer;
 	ALLEGRO_EVENT_QUEUE* queue;
@@ -69,7 +81,7 @@ private:
 	ALLEGRO_EVENT timerev;
 	ALLEGRO_DISPLAY* display;
 	ALLEGRO_BITMAP* tempBitmap;
-	json blocks;
+	json BlockChainJSON;
 	bool Error;
 	bool close;
 	bool failed;
@@ -80,7 +92,7 @@ private:
 	vector<string> keys;
 	vector<string> jsonPaths;
 	string filename;
-
+	BlockInfo displayInfo;
 	Event EventoActual;
 	Estado EstadoActual;
 	ImGuiWindowFlags window_flags;

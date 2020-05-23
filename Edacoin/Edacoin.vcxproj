@@ -165,6 +165,7 @@
     <ClInclude Include="Imgui_files\imstb_rectpack.h" />
     <ClInclude Include="Imgui_files\imstb_textedit.h" />
     <ClInclude Include="Imgui_files\imstb_truetype.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="UserInterface.h" />
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +176,8 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\AllegroDeps.1.11.0\build\native\AllegroDeps.targets" Condition="Exists('packages\AllegroDeps.1.11.0\build\native\AllegroDeps.targets')" />
     <Import Project="packages\Allegro.5.2.6\build\native\Allegro.targets" Condition="Exists('packages\Allegro.5.2.6\build\native\Allegro.targets')" />
+    <Import Project="packages\boost.1.72.0.0\build\boost.targets" Condition="Exists('packages\boost.1.72.0.0\build\boost.targets')" />
+    <Import Project="packages\boost_filesystem-vc142.1.72.0.0\build\boost_filesystem-vc142.targets" Condition="Exists('packages\boost_filesystem-vc142.1.72.0.0\build\boost_filesystem-vc142.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -182,5 +185,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\AllegroDeps.1.11.0\build\native\AllegroDeps.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\AllegroDeps.1.11.0\build\native\AllegroDeps.targets'))" />
     <Error Condition="!Exists('packages\Allegro.5.2.6\build\native\Allegro.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Allegro.5.2.6\build\native\Allegro.targets'))" />
+    <Error Condition="!Exists('packages\boost.1.72.0.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost.1.72.0.0\build\boost.targets'))" />
+    <Error Condition="!Exists('packages\boost_filesystem-vc142.1.72.0.0\build\boost_filesystem-vc142.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost_filesystem-vc142.1.72.0.0\build\boost_filesystem-vc142.targets'))" />
   </Target>
 </Project>

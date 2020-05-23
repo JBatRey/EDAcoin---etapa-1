@@ -1,6 +1,6 @@
 #include "UserInterface.h"
 
-UserInterface::UserInterface() : keys{ "blockid","height","merkleroot","nTx","nonce","previousblockid","tx" }
+UserInterface::UserInterface() : keys{ "blockid", "height", "merkleroot", "nTx", "nonce", "previousblockid", "tx" }
 {
 	if (AllegroInit() && ImguiInit())
 	{
@@ -116,9 +116,6 @@ bool UserInterface::print_current_state(Estado CurrentState)
 	case Estado::FileView:
 		if (print_blockSelection()) userEvento = true;
 		break;
-	case Estado::MerkelTree:
-		//if(print_MerkerTree()) userEvento = true;
-		break;
 	case Estado::Error:
 		//if(print_error()) userEvento = true;
 		break;
@@ -185,39 +182,6 @@ bool UserInterface::print_MainMenu(void)
 
 }
 
-bool UserInterface::print_blockSelection(void)
-{
-	ImGui_ImplAllegro5_NewFrame();
-	ImGui::NewFrame();
-
-
-	ImGui::SetNextWindowPos(ImVec2(200, 10));
-	ImGui::SetNextWindowSize(ImVec2(600, 150));
-
-	ImGui::Begin("Welcome to the EDAcoin", 0, window_flags);
-
-	ImGui::Text("Hola!");
-
-	
-
-	bool show_demo_window;
-	ImGui::ShowDemoWindow(&show_demo_window);
-
-	bool eventHappened = false;
-
-	ImGui::End();
-
-	//Rendering
-	ImGui::Render();
-
-	al_clear_to_color(al_map_rgb(211, 211, 211));
-
-	ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
-	al_flip_display();
-	return eventHappened;
-
-}
-
 
 vector<string> UserInterface::lookForJsonFiles(const char* directoryName)
 {
@@ -248,8 +212,6 @@ vector<string> UserInterface::lookForJsonFiles(const char* directoryName)
 bool UserInterface::print_SelectJsons(vector<string>& nombres)
 {
 
-	//Checkbox con imgui
-	//static bool checks[MAX_FILES] = { false };
 	static int checked = -1;
 	for (int i = 0; i < nombres.size(); i++)
 	{
@@ -283,16 +245,60 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 	}
 }
 
+bool UserInterface::print_blockSelection(void)
+{
+	ImGui_ImplAllegro5_NewFrame();
+	ImGui::NewFrame();
+
+
+	ImGui::SetNextWindowPos(ImVec2(200, 10));
+	ImGui::SetNextWindowSize(ImVec2(600, 500));
+
+	ImGui::Begin(filename.c_str(), 0, window_flags);
+
+	bool eventHappened = false;
+
+	blockActions();
+
+	ImGui::End();
+
+	if (displayInfo.show) {
+		// TODO: NO SE BIEN PORQUE NO ME MUESTRA UNA NUEVA VENTANA
+		ImGui::SetNextWindowPos(ImVec2(400, 10));
+		ImGui::SetNextWindowSize(ImVec2(600, 150));
+		ImGui::Begin(filename.c_str(), 0, window_flags);
+		
+		ImGui::Text(displayInfo.blockId.c_str());
+		ImGui::Text(displayInfo.previousBlockId.c_str());
+		ImGui::Text(displayInfo.BlockNumber.c_str());
+		ImGui::Text(displayInfo.NTransactions.c_str());
+		ImGui::Text(displayInfo.blockId.c_str());
+
+
+		ImGui::End();
+	}
+
+	//Rendering
+	ImGui::Render();
+
+	al_clear_to_color(al_map_rgb(211, 211, 211));
+
+	ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
+	al_flip_display();
+	return eventHappened;
+
+}
+
 
 bool UserInterface::parseallOk(string str)
 {
 	//Abro el archivo y lo asigno a mi variable miembro blocks (de tipo json)
 	std::ifstream blocks_file(str, std::ifstream::binary);
-	blocks_file >> blocks;
+	blocks_file >> BlockChainJSON;
 	//Recorro todos los elementos de la lista y me fijo si cada diccionario tiene 7 keys
-	for (int i = 0; i < blocks.size(); i++)
+	for (int i = 0; i < BlockChainJSON.size(); i++)
 	{
-		if (blocks[i].size() != 7)
+		if (BlockChainJSON[i].size() != 7)
 		{
 			cout << "Error uno de los blockes tiene menos de 7 keys" << endl;
 			ErrorString = "Error uno de los blockes tiene menos de 7 keys";
@@ -302,7 +308,7 @@ bool UserInterface::parseallOk(string str)
 
 	//Recorro nuevamente todos los elementos de la lista y todos los elementos del diccionario 
 	//y para cada uno de ellos me fijo que su nombre corresponda con los del vector keys
-	for (auto item : blocks)
+	for (auto item : BlockChainJSON)
 	{
 		for (int i = 0; i < item.size(); i++) //item.size es 7 igual ya lo comprobamos arriba
 		{
@@ -318,6 +324,39 @@ bool UserInterface::parseallOk(string str)
 	return true;
 }
 
+
+void UserInterface::blockActions() {
+
+	static int checked = -1;
+	for (int i = 0; i < BlockChainJSON.size(); i++)
+	{
+		string blockId = string(BlockChainJSON[i]["blockid"].get<string>());
+		ImGui::RadioButton(blockId.c_str(), &checked, i);
+	}
+
+	/* Acciones sobre el bloque */
+
+	if (ImGui::Button("Info"))
+	{
+		showBlockInfo(checked);
+	}
+
+	if (ImGui::Button("Calcular el Merkle root"))
+	{
+		// TODO: CALCULO DE MERKEL ROOT SE PUEDE MOSTRAR EN ESTA PANTALLA
+	}
+
+	if (ImGui::Button("Validar el Merkle root"))
+	{
+		// TODO: VALIDAR DE MERKEL ROOT SE PUEDE MOSTRAR EN ESTA PANTALLA
+	}
+
+	if (ImGui::Button("Merkle Tree"))
+	{
+		// TODO: ESTO IRIA EN OTRA PANTALLA APARTE COMO INFO
+	}
+
+}
 
 
 bool UserInterface::AllegroInit()
@@ -387,3 +426,12 @@ bool UserInterface::ImguiInit(void)
 	return true;
 }
 
+void UserInterface::showBlockInfo(int index) {
+
+	displayInfo.blockId = "Block Id: " + BlockChainJSON[index]["blockid"].get<string>();
+	displayInfo.previousBlockId = "Previous block id: " + BlockChainJSON[index]["previousblockid"].get<string>();
+	displayInfo.NTransactions = "Number of transactions: " + to_string(BlockChainJSON[index]["nTx"].get<int>());
+	displayInfo.BlockNumber = "Block number: " + to_string(index);
+	displayInfo.nonce = "Nonce: " + to_string(BlockChainJSON[index]["nonce"].get<int>());
+	displayInfo.show = true;
+}
