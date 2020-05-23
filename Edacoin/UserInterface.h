@@ -96,5 +96,5 @@ private:
 	Event EventoActual;
 	Estado EstadoActual;
 	ImGuiWindowFlags window_flags;
-	string ErrorString;
+	string errorString;
 };

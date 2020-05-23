@@ -17,7 +17,7 @@ UserInterface::UserInterface() : keys{ "blockid", "height", "merkleroot", "nTx",
 		close = false;
 		failed = false;
 		EventoActual = Event::dummyEvent;
-		ErrorString = "";
+		errorString = "";
 		EstadoActual = Estado::MainMenu;
 	}
 	else
@@ -145,6 +145,7 @@ bool UserInterface::print_MainMenu(void)
 
 	bool eventHappened = false;
 
+
 	if (string(path) != "") {
 
 		directory = path;
@@ -160,11 +161,12 @@ bool UserInterface::print_MainMenu(void)
 
 		if (ImGui::BeginPopupModal("Failed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			ImGui::Text(ErrorString.c_str());
+			ImGui::Text(errorString.c_str());
 			ImGui::Separator();
 
 			if (ImGui::Button("OK", ImVec2(120, 0))) 
 			{ 
+				errorString = "";
 				failed = false;
 				ImGui::CloseCurrentPopup();
 			}
@@ -217,6 +219,8 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 	bool eventHappened;
 
 	static int checked = -1;
+
+
 	for (int i = 0; i < nombres.size(); i++)
 	{
 		ImGui::RadioButton(nombres[i].c_str(), &checked, i);
@@ -232,9 +236,10 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 			else {
 				//sin esta parte daria un error al querer leer filename con nada guardado.
 				printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
-				ErrorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
+				errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
 				failed = true;
-				return true;
+				//return true;
+				eventHappened = false;
 			}
 		}
 
@@ -323,8 +328,8 @@ bool UserInterface::parseallOk(string str)
 			{
 				if (BlockChainJSON[i].size() != 7)
 				{
-					cout << "Error uno de los blockes tiene menos de 7 keys" << endl;
-					ErrorString = "Error uno de los blockes tiene menos de 7 keys";
+					cout << "Error uno de los bloques tiene menos de 7 keys" << endl;
+					errorString = "Error parsing \nwrong key number!";
 					retVal = false;
 				}
 			}
@@ -338,7 +343,7 @@ bool UserInterface::parseallOk(string str)
 					if (item.find(keys[i]) == item.end())
 					{
 						cout << "Error, una de las keys no corresponde con lo esperado" << endl;
-						ErrorString = "Error, una de las keys no corresponde con lo esperado";
+						errorString = "Error parsing \nwrong key value!";
 						retVal = false;
 					}
 				}
@@ -350,6 +355,7 @@ bool UserInterface::parseallOk(string str)
 	catch (json::parse_error& e)
 	{
 		std::cerr << e.what() << std::endl;
+		errorString = "Error parsing \nEmpty or corrupt file!";
 	}
 	return retVal;
 }
