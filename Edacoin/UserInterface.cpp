@@ -1,5 +1,7 @@
 #include "UserInterface.h"
 
+#define EURO_ASCII "    __    \n  _/  |_  \n / $$   \ \n/$$$$$$  |\n$$ \__$$/ \n$$      \ \n $$$$$$  |\n/  \__$$ |\n$$    $$/ \n $$$$$$/  \n   $$/    "
+
 UserInterface::UserInterface() : keys{ "blockid", "height", "merkleroot", "nTx", "nonce", "previousblockid", "tx" }
 {
 	if (AllegroInit() && ImguiInit())
@@ -99,6 +101,11 @@ void UserInterface::Dispatch(void)
 
 	case Event::fileSelected:
 		EstadoActual = Estado::FileView;
+		break;
+
+	case Event::BackToMainMenu:
+		EstadoActual = Estado::MainMenu;
+		break;
 
 	default:
 		break;
@@ -133,7 +140,7 @@ bool UserInterface::print_MainMenu(void)
 
 
 	ImGui::SetNextWindowPos(ImVec2(200, 10));
-	ImGui::SetNextWindowSize(ImVec2(600, 150));
+	ImGui::SetNextWindowSize(ImVec2(500, 500));
 
 	ImGui::Begin("Welcome to the EDAcoin", 0, window_flags);
 
@@ -153,6 +160,15 @@ bool UserInterface::print_MainMenu(void)
 		if (jsonPaths.size() > 0 && print_SelectJsons(jsonPaths)) {
 			eventHappened = true;
 		}
+	}
+	else {
+		for (int i = 0; i < 3; i++) {
+				if (i != 0) {
+					ImGui::SameLine;
+				}
+				ImGui::Text(EURO_ASCII);
+		}
+		
 	}
 	//entra aca solo si hubo un error en el parseo para mostrarlo en forma de pop-up
 	if (failed == true)
@@ -219,12 +235,16 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 	bool eventHappened;
 
 	static int checked = -1;
+	ImGui::BeginChild(".json files in current folder", ImVec2(300, 400), true, ImGuiWindowFlags_None);
+
+		for (int i = 0; i < nombres.size(); i++)
+		{
+			ImGui::RadioButton(nombres[i].c_str(), &checked, i);
+		}
+
+	ImGui::EndChild();
 
 
-	for (int i = 0; i < nombres.size(); i++)
-	{
-		ImGui::RadioButton(nombres[i].c_str(), &checked, i);
-	}
 
 	if (ImGui::Button("Seleccionar"))
 	{
@@ -278,6 +298,11 @@ bool UserInterface::print_blockSelection(void)
 
 	blockActions();
 
+	if (ImGui::Button("Seleccionar otra block chain")) {
+		EventoActual = Event::BackToMainMenu;
+		eventHappened = true;
+	}
+
 	ImGui::End();
 
 	if (displayInfo.show) {
@@ -298,6 +323,8 @@ bool UserInterface::print_blockSelection(void)
 
 		ImGui::End();
 	}
+
+
 
 	//Rendering
 	ImGui::Render();

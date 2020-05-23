@@ -38,7 +38,7 @@ using namespace std;
 using json = nlohmann::json;
 namespace fs = boost::filesystem;
 
-enum class Event { Close, ShowMerkelTree, Error, fileSelected, dummyEvent };
+enum class Event { Close, ShowMerkelTree, Error, fileSelected, dummyEvent, BackToMainMenu };
 enum class Estado { MainMenu, FileView, Error };
 
 typedef struct {
