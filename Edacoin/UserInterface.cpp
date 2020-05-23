@@ -1,6 +1,6 @@
 #include "UserInterface.h"
 
-UserInterface::UserInterface()
+UserInterface::UserInterface() : keys{ "blockid","height","merkleroot","nTx","nonce","previousblockid","tx" }
 {
 	if (AllegroInit() && ImguiInit())
 	{
@@ -16,7 +16,7 @@ UserInterface::UserInterface()
 		Error = false;
 		close = false;
 		EventoActual = Event::dummyEvent;
-		EstadoActual = Estado::MainMenu;		
+		EstadoActual = Estado::MainMenu;
 	}
 	else
 	{
@@ -62,7 +62,7 @@ bool UserInterface::Running()
 
 bool UserInterface::checkIfEvent(void)
 {
-	bool isThereAnEvent = false; 
+	bool isThereAnEvent = false;
 
 	while (al_get_next_event(queue, &ev))
 	{
@@ -74,7 +74,7 @@ bool UserInterface::checkIfEvent(void)
 		EventoActual = Event::Close;
 		isThereAnEvent = true;
 	}
-	
+
 	if (print_current_state(EstadoActual))				//Devuelve true si huvo un evento (Usuario presiono un boton)
 	{
 		isThereAnEvent = true;
@@ -108,20 +108,20 @@ bool UserInterface::print_current_state(Estado CurrentState)
 	bool userEvento = false;
 	switch (CurrentState)
 	{
-	case Estado::MainMenu:					
+	case Estado::MainMenu:
 		if (print_MainMenu()) userEvento = true;
 		break;
 	case Estado::FileView:
-		if(print_blockSelection()) userEvento = true;
+		if (print_blockSelection()) userEvento = true;
 		break;
-	case Estado::MerkelTree:					
+	case Estado::MerkelTree:
 		//if(print_MerkerTree()) userEvento = true;
 		break;
 	case Estado::Error:
 		//if(print_error()) userEvento = true;
 		break;
 	default:
-			break;
+		break;
 	}
 
 	return userEvento;
@@ -136,32 +136,32 @@ bool UserInterface::print_MainMenu(void)
 	ImGui::SetNextWindowPos(ImVec2(200, 10));
 	ImGui::SetNextWindowSize(ImVec2(600, 150));
 
-		ImGui::Begin("Welcome to the EDAcoin", 0, window_flags);
-		
-		static char path[MAX_PATH];
-		ImGui::InputText("Directorio", path, sizeof(char) * MAX_PATH);
+	ImGui::Begin("Welcome to the EDAcoin", 0, window_flags);
 
-		bool eventHappened = false;
+	static char path[MAX_PATH];
+	ImGui::InputText("Directorio", path, sizeof(char) * MAX_PATH);
 
-		if (string(path) != "") {
+	bool eventHappened = false;
 
-			directory = path;
-			jsonPaths = lookForJsonFiles(path);
-			if (jsonPaths.size() > 0 && print_SelectJsons(jsonPaths)) {
-				eventHappened = true;
-			}
+	if (string(path) != "") {
+
+		directory = path;
+		jsonPaths = lookForJsonFiles(path);
+		if (jsonPaths.size() > 0 && print_SelectJsons(jsonPaths)) {
+			eventHappened = true;
 		}
-		
-		ImGui::End();
+	}
 
-		//Rendering
-		ImGui::Render();
+	ImGui::End();
 
-		al_clear_to_color(al_map_rgb(211, 211, 211));
+	//Rendering
+	ImGui::Render();
 
-		ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
-		al_flip_display();
-		return eventHappened;
+	al_clear_to_color(al_map_rgb(211, 211, 211));
+
+	ImGui_ImplAllegro5_RenderDrawData(ImGui::GetDrawData());
+	al_flip_display();
+	return eventHappened;
 
 }
 
@@ -195,9 +195,9 @@ bool UserInterface::print_blockSelection(void)
 	return eventHappened;
 
 }
-	
-	
-vector<string> UserInterface::lookForJsonFiles(const char * directoryName)
+
+
+vector<string> UserInterface::lookForJsonFiles(const char* directoryName)
 {
 
 	vector<string>filenames;
@@ -205,7 +205,7 @@ vector<string> UserInterface::lookForJsonFiles(const char * directoryName)
 	if (string(directoryName).size() > 2) {
 
 		fs::path bPath(directoryName);
-		
+
 		if (exists(bPath) && is_directory(bPath))
 		{
 			for (fs::directory_iterator iterator(bPath); iterator != fs::directory_iterator(); iterator++)
@@ -213,7 +213,6 @@ vector<string> UserInterface::lookForJsonFiles(const char * directoryName)
 				if ((iterator->path().extension().string() == ".json"))
 				{
 					filenames.push_back(iterator->path().filename().string());
-
 				}
 			}
 		}
@@ -251,22 +250,55 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 			}
 		}
 
-		if(true /*parseallOk(directory + '/' + filename)*/)
+		if (parseallOk(directory + "\\" + filename))
 		{
-		EventoActual = Event::fileSelected;
-		return true;
+			EventoActual = Event::fileSelected;
+			return true;
 		}
 		else {
-		//Impimir pop-up que avise que no tiene un formato válido (hubo un error en el parseo)
+			//Impimir pop-up que avise que no tiene un formato válido (hubo un error en el parseo)
 		}
-		
+
 
 		cout << filename << endl;
-		cout << "full path: " << endl << directory + "/" + filename << endl;
+		cout << "full path: " << endl << directory + "\\" + filename << endl;
 	}
 	else {
 		return false;
 	}
+}
+
+
+bool UserInterface::parseallOk(string str)
+{
+	//Abro el archivo y lo asigno a mi variable miembro blocks (de tipo json)
+	std::ifstream blocks_file(str, std::ifstream::binary);
+	blocks_file >> blocks;
+	//Recorro todos los elementos de la lista y me fijo si cada diccionario tiene 7 keys
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		if (blocks[i].size() != 7)
+		{
+			cout << "Error uno de los blockes tiene menos de 7 keys" << endl;
+			return false;
+		}
+	}
+
+	//Recorro nuevamente todos los elementos de la lista y todos los elementos del diccionario 
+	//y para cada uno de ellos me fijo que su nombre corresponda con los del vector keys
+	for (auto item : blocks)
+	{
+		for (int i = 0; i < item.size(); i++) //item.size es 7 igual ya lo comprobamos arriba
+		{
+			if (item.find(keys[i]) == item.end())
+			{
+				cout << "Error, una de las keys no corresponde con lo esperado" << endl;
+				return false;
+			}
+		}
+	}
+
+	return true;
 }
 
 
@@ -283,8 +315,8 @@ bool UserInterface::AllegroInit()
 				{
 					if (al_init_primitives_addon())
 					{
-							//Backgrounds[0] = al_load_bitmap("twitterbac.png");
-							return true;
+						//Backgrounds[0] = al_load_bitmap("twitterbac.png");
+						return true;
 					}
 					else
 					{
@@ -337,3 +369,4 @@ bool UserInterface::ImguiInit(void)
 
 	return true;
 }
+
