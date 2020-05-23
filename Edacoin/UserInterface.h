@@ -72,6 +72,7 @@ private:
 	json blocks;
 	bool Error;
 	bool close;
+	bool failed;
 	bool stillRunning;
 	bool correctlyInitialized;
 	bool WorkInProgress;
@@ -83,4 +84,5 @@ private:
 	Event EventoActual;
 	Estado EstadoActual;
 	ImGuiWindowFlags window_flags;
+	string ErrorString;
 };

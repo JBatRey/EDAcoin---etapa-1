@@ -15,7 +15,9 @@ UserInterface::UserInterface() : keys{ "blockid","height","merkleroot","nTx","no
 		window_flags |= ImGuiWindowFlags_NoResize;
 		Error = false;
 		close = false;
+		failed = false;
 		EventoActual = Event::dummyEvent;
+		ErrorString = "";
 		EstadoActual = Estado::MainMenu;
 	}
 	else
@@ -151,7 +153,25 @@ bool UserInterface::print_MainMenu(void)
 			eventHappened = true;
 		}
 	}
+	//entra aca solo si hubo un error en el parseo para mostrarlo en forma de pop-up
+	if (failed == true)
+	{
+		ImGui::OpenPopup("Failed");
 
+		if (ImGui::BeginPopupModal("Failed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text(ErrorString.c_str());
+			ImGui::Separator();
+
+			if (ImGui::Button("OK", ImVec2(120, 0))) 
+			{ 
+				failed = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+	}
+	
 	ImGui::End();
 
 	//Rendering
@@ -178,8 +198,10 @@ bool UserInterface::print_blockSelection(void)
 
 	ImGui::Text("Hola!");
 
-	bool show_demo_window;
-	ImGui::ShowDemoWindow(&show_demo_window);
+	
+
+	//bool show_demo_window;
+	//ImGui::ShowDemoWindow(&show_demo_window);
 
 	bool eventHappened = false;
 
@@ -256,10 +278,10 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 			return true;
 		}
 		else {
-			//Impimir pop-up que avise que no tiene un formato válido (hubo un error en el parseo)
+			//indico que fallo para que muestre luego el pop-up con el fallo
+			failed = true;
 		}
-
-
+		
 		cout << filename << endl;
 		cout << "full path: " << endl << directory + "\\" + filename << endl;
 	}
@@ -280,6 +302,7 @@ bool UserInterface::parseallOk(string str)
 		if (blocks[i].size() != 7)
 		{
 			cout << "Error uno de los blockes tiene menos de 7 keys" << endl;
+			ErrorString = "Error uno de los blockes tiene menos de 7 keys";
 			return false;
 		}
 	}
@@ -293,6 +316,7 @@ bool UserInterface::parseallOk(string str)
 			if (item.find(keys[i]) == item.end())
 			{
 				cout << "Error, una de las keys no corresponde con lo esperado" << endl;
+				ErrorString = "Error, una de las keys no corresponde con lo esperado";
 				return false;
 			}
 		}
