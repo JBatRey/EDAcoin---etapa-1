@@ -308,6 +308,8 @@ bool UserInterface::print_blockSelection(void)
 
 bool UserInterface::parseallOk(string str)
 {
+	
+	bool retVal = false;
 	//Abro el archivo y lo asigno a mi variable miembro blocks (de tipo json)
 	std::ifstream blocks_file(str, std::ifstream::binary);
 
@@ -323,7 +325,7 @@ bool UserInterface::parseallOk(string str)
 				{
 					cout << "Error uno de los blockes tiene menos de 7 keys" << endl;
 					ErrorString = "Error uno de los blockes tiene menos de 7 keys";
-					return false;
+					retVal = false;
 				}
 			}
 
@@ -337,20 +339,19 @@ bool UserInterface::parseallOk(string str)
 					{
 						cout << "Error, una de las keys no corresponde con lo esperado" << endl;
 						ErrorString = "Error, una de las keys no corresponde con lo esperado";
-						return false;
+						retVal = false;
 					}
 				}
 			}
 
-			return true;
+			retVal = true;
 		}
 	}
 	catch (json::parse_error& e)
 	{
 		std::cerr << e.what() << std::endl;
-		return false;
 	}
-	return false;
+	return retVal;
 }
 
 
