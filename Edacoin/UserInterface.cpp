@@ -225,6 +225,12 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 			if (checked != -1) {
 				filename = nombres[checked];
 			}
+			else {
+				failed = true;
+				printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
+				ErrorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
+				return true;
+			}
 		}
 
 		if (parseallOk(directory + "\\" + filename))
