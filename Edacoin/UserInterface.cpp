@@ -200,8 +200,8 @@ bool UserInterface::print_blockSelection(void)
 
 	
 
-	//bool show_demo_window;
-	//ImGui::ShowDemoWindow(&show_demo_window);
+	bool show_demo_window;
+	ImGui::ShowDemoWindow(&show_demo_window);
 
 	bool eventHappened = false;
 
@@ -249,26 +249,19 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 {
 
 	//Checkbox con imgui
-	static bool checks[MAX_FILES] = { false };
-	int i;
-	for (i = 0; i < nombres.size(); i++)
+	//static bool checks[MAX_FILES] = { false };
+	static int checked = -1;
+	for (int i = 0; i < nombres.size(); i++)
 	{
-		if (ImGui::Checkbox(nombres[i].c_str(), &checks[i])) {
-			for (int j = 0; j < nombres.size(); j++)
-			{
-				if (j != i && checks[j]) {
-					checks[j] = false;
-				}
-			}
-		}
+		ImGui::RadioButton(nombres[i].c_str(), &checked, i);
 	}
 
 	if (ImGui::Button("Seleccionar"))
 	{
-		for (i = 0; i < nombres.size(); i++)
+		for (int i = 0; i < nombres.size(); i++)
 		{
-			if (checks[i]) {
-				filename = nombres[i];
+			if (checked != -1) {
+				filename = nombres[checked];
 			}
 		}
 
