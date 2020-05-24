@@ -94,7 +94,7 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 		unsigned char* oldID = new unsigned char[id.length() + 1]; //Copiado de stack overflow 
 		strcpy((char*)oldID, id.c_str());
 
-		int newID = generateID(oldID);
+		unsigned int newID = generateID(oldID);
 		currentLevel.push_back(hexCodexASCII(newID));
 	}
 	// Borrar lo de abajo
@@ -128,7 +128,7 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 			unsigned char* oldID = new unsigned char[currentLevel[i].length() + 1]; //Copiado de stack overflow 
 			strcpy((char*)oldID, currentLevel[i].c_str());
 
-			int newID = generateID(oldID);
+			unsigned int newID = generateID(oldID);
 			currentLevel[i] = hexCodexASCII(newID);
 		}
 
