@@ -77,9 +77,11 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 	vector<string> currentLevel;
 	for (auto transaction : BlockChainJSON[blockNumber]["tx"]) {
 		
-		string id = string(transaction["txid"].get<string>());
+		string id;
+		for (auto tx : transaction["vin"]) {
+			id += string(tx["txid"].get<string>());
+		}
 		currentLevel.push_back(id);
-		
 	}
 	if (currentLevel.size() % 2) {
 		currentLevel.push_back(currentLevel.back());
@@ -123,6 +125,7 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 		}
 
 		//re-hasheo el nivel actual
+
 		for (int i = 0; i < currentLevel.size(); i ++) {
 			
 			unsigned char* oldID = new unsigned char[currentLevel[i].length() + 1]; //Copiado de stack overflow 
