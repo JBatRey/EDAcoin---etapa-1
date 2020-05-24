@@ -75,28 +75,30 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 	
 	// Hojas
 	vector<string> currentLevel;
+
+	vector<string> prehashIDs;
 	for (auto transaction : BlockChainJSON[blockNumber]["tx"]) {
 		
 		string id;
 		for (auto tx : transaction["vin"]) {
 			id += string(tx["txid"].get<string>());
 		}
-		currentLevel.push_back(id);
+		prehashIDs.push_back(id);
 	}
-	if (currentLevel.size() % 2) {
-		currentLevel.push_back(currentLevel.back());
+	if (prehashIDs.size() % 2) {
+		prehashIDs.push_back(prehashIDs.back());
 	}
-	levels.push_back(currentLevel);
+	
 
 	// hashes
 
 	currentLevel.clear();
-	for (string id: levels.back()) {
+	for (string oldId: prehashIDs) {
 
-		unsigned char* oldID = new unsigned char[id.length() + 1]; //Copiado de stack overflow 
-		strcpy((char*)oldID, id.c_str());
+		unsigned char* oldID_char = new unsigned char[oldId.length() + 1]; //Copiado de stack overflow 
+		strcpy((char*)oldID_char, oldId.c_str());
 
-		unsigned int newID = generateID(oldID);
+		unsigned int newID = generateID(oldID_char);
 		currentLevel.push_back(hexCodexASCII(newID));
 	}
 	// Borrar lo de abajo
