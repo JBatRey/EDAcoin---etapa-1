@@ -325,6 +325,21 @@ bool UserInterface::print_blockSelection(void)
 		ImGui::End();
 	}
 
+	if (displayTree.show) {
+		//ImGui::SetNextWindowPos(ImVec2(400, 10));  //lo quite por conveniencia podemos ponerlo despues pero en una pos mas comoda
+		ImGui::SetNextWindowSize(ImVec2(600, 150));
+		ImGui::Begin("Merkel Tree", 0, window_flags);
+
+		ImGui::Text(displayTree.tree.c_str());
+
+		if (ImGui::Button("Close"))
+		{
+			displayTree.show = false;
+		}
+
+		ImGui::End();
+	}
+
 	//Rendering
 	ImGui::Render();
 
@@ -433,8 +448,8 @@ void UserInterface::blockActions() {
 	{
 		
 		if (checked != -1) {
-			vector<vector<string>> makleTree = blockchainHandler.makeMerkleTree(checked);
-			// TODO: ESTO IRIA EN OTRA PANTALLA APARTE COMO INFO
+			vector<vector<string>> tree = blockchainHandler.makeMerkleTree(checked);
+			printTree(tree);
 		}
 		else {
 			//sin esta parte daria un error al querer leer filename con nada guardado.
@@ -542,4 +557,75 @@ void UserInterface::showBlockInfo(int index) {
 	displayInfo.BlockNumber = "Block number: " + to_string(index);
 	displayInfo.nonce = "Nonce: " + to_string(blockchainHandler.BlockChainJSON[index]["nonce"].get<int>());
 	displayInfo.show = true;
+}
+
+
+// Helper function to print branches of the binary tree
+void UserInterface::showTrunks(Trunk* p)
+{
+	if (p == nullptr)
+		return;
+
+	showTrunks(p->prev);
+
+	displayTree.tree = displayTree.tree + p->str;
+}
+
+// Recursive function to print binary tree
+// It uses inorder traversal
+void UserInterface::printTreeConsole(Node* root, Trunk* prev, bool isLeft)
+{	// IMPLEMENTATION BASED ON: https://www.techiedelight.com/c-program-print-binary-tree/
+	if (root == nullptr)
+		return;
+
+	string prev_str = "    ";
+	Trunk* trunk = new Trunk(prev, prev_str);
+
+	printTreeConsole(root->left, trunk, true);
+
+	if (!prev)
+		trunk->str = "---";
+	else if (isLeft)
+	{
+		trunk->str = ".---";
+		prev_str = "   |";
+	}
+	else
+	{
+		trunk->str = "`---";
+		prev->str = prev_str;
+	}
+
+	showTrunks(trunk);
+	displayTree.tree = displayTree.tree + root->data + "\n\r";
+
+	if (prev)
+		prev->str = prev_str;
+	trunk->str = "   |";
+
+	printTreeConsole(root->right, trunk, false);
+}
+
+void UserInterface::printTree(vector<vector<string>> Tree) {
+	displayTree.show = true;
+	displayTree.tree = "";
+	NodeTree.resize(Tree.size(), vector<Node>(Tree[0].size()));
+	for (int i = 0; i < Tree.size(); i++) {
+		for (int j = 0; j < Tree[i].size(); j++) {
+			Node newNode(Tree[i][j]);
+			NodeTree[i][j] = newNode;
+		}
+	}
+
+	for (int i = 0; i < Tree.size(); i++) {
+		for (int j = 0; j < Tree[i].size(); j++) {
+			if (!(j % 2) && (i < Tree.size() - 1)) {
+				NodeTree[i + 1][j / 2].left = &NodeTree[i][j];
+				NodeTree[i + 1][j / 2].right = &NodeTree[i][j + 1];
+			}
+		}
+	}
+	printTreeConsole(&NodeTree[Tree.size()-1][0], nullptr, false);
+
+	cout << displayTree.tree;
 }
