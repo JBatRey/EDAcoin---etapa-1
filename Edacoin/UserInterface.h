@@ -10,7 +10,7 @@
 #define MAX_FILES 40
 #define MAX_BLOCKS 40
 
-#include<vector>
+#include <vector>
 #include<string>
 #include <list> 
 #include <iterator>
@@ -50,8 +50,37 @@ typedef struct {
 	bool show = false;
 } BlockInfo;
 
+typedef struct {
+	string tree;
+	bool show = false;
+} BlockTree;
+
 class UserInterface
 {
+
+	struct Node
+	{
+		string data;
+		Node* left, * right;
+
+		Node(string data = "")
+		{
+			this->data = data;
+			this->left = this->right = nullptr;
+		}
+	};
+
+	struct Trunk
+	{
+		Trunk* prev;
+		string str;
+
+		Trunk(Trunk* prev, string str)
+		{
+			this->prev = prev;
+			this->str = str;
+		}
+	};
 
 public:
 	UserInterface();
@@ -71,6 +100,9 @@ private:
 	vector<string> lookForJsonFiles(const char* directoryName);
 	void blockActions();
 	void showBlockInfo(int index);
+	void printTree(vector<vector<string>> Tree);
+	void showTrunks(Trunk* p);
+	void printTreeConsole(Node* root, Trunk* prev, bool isLeft);
 
 	ALLEGRO_TIMER* timer;
 	ALLEGRO_EVENT_QUEUE* queue;
@@ -90,11 +122,12 @@ private:
 	vector<string> jsonPaths;
 	string filename;
 	BlockInfo displayInfo;
+	BlockTree displayTree;
+	vector<vector<Node>> NodeTree;
 	Event EventoActual;
 	Estado EstadoActual;
 	ImGuiWindowFlags window_flags;
 	string errorString;
-
 	blockchainHandler blockchainHandler;
 };
 
