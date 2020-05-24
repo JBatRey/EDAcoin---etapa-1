@@ -70,6 +70,7 @@ bool blockchainHandler::parseallOk(string str, string * errorString)
 }
 
 vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
+	
 	vector<vector<string>> levels;
 	
 	// Hojas
@@ -85,7 +86,6 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 	}
 	levels.push_back(currentLevel);
 
-
 	// hashes
 
 	currentLevel.clear();
@@ -97,6 +97,7 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 		int newID = generateID(oldID);
 		currentLevel.push_back(hexCodexASCII(newID));
 	}
+	// Borrar lo de abajo
 	if (currentLevel.size() % 2) {
 		currentLevel.push_back(levels[1].back());
 	}
@@ -104,8 +105,8 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 
 
 	while (levels.back().size() > 1) {
+		
 		currentLevel.clear();
-
 
 		if (!(levels.back().size() % 2)) {
 			// Uno los hashes anteriores en el actual
@@ -118,9 +119,8 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 			for (i = 1; i < (levels.back().size() - 1); i += 2) {
 				currentLevel.push_back(levels.back()[i - 1] + levels.back()[i]);
 			}
-			currentLevel.push_back(levels.back()[i] + levels.back()[i]);
+			currentLevel.push_back(levels.back()[i-1] + levels.back()[i-1]);
 		}
-
 
 		//re-hasheo el nivel actual
 		for (int i = 0; i < currentLevel.size(); i ++) {
@@ -136,8 +136,8 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 		levels.push_back(currentLevel);
 	}
 
-	cout << "Nuestra merkle root: " << levels.back().back() << endl;
-	cout << "La merkle root del bloque: " << BlockChainJSON[blockNumber]["merkleroot"] << endl;
+	cout << "Nuestra merkle root: " << levels.back().back() << endl; 
+	cout << "La merkle root del bloque: " << BlockChainJSON[blockNumber]["merkleroot"] << endl; 
 
 
 	return levels;

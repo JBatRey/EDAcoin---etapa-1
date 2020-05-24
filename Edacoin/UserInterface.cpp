@@ -144,8 +144,8 @@ bool UserInterface::print_MainMenu(void)
 
 	ImGui::Begin("Welcome to the EDAcoin", 0, window_flags);
 
-	/*bool show_demo_window = true;
-	ImGui::ShowDemoWindow(&show_demo_window);*/
+	//bool show_demo_window = true;
+	//ImGui::ShowDemoWindow(&show_demo_window);
 
 	static char path[MAX_PATH];
 	ImGui::InputText("Directorio", path, sizeof(char) * MAX_PATH);
@@ -462,6 +462,7 @@ void UserInterface::blockActions() {
 			ImGui::EndPopup();
 		}
 	}
+
 
 }
 
