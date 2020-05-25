@@ -329,10 +329,15 @@ bool UserInterface::print_blockSelection(void)
 
 	if (displayTree.show) {
 		//ImGui::SetNextWindowPos(ImVec2(400, 10));  //lo quite por conveniencia podemos ponerlo despues pero en una pos mas comoda
-		ImGui::SetNextWindowSize(ImVec2(600, 1000));
+		ImGui::SetNextWindowSize(ImVec2(600, 600));
 		ImGui::Begin("Merkel Tree", 0, window_flags);
+		
+		ImGui::BeginChild("Merkle Tree", ImVec2(600, 600), true, ImGuiWindowFlags_None);
 
 		ImGui::Text(displayTree.tree.c_str());
+
+		ImGui::EndChild();
+
 
 		if (ImGui::Button("Close"))
 		{
