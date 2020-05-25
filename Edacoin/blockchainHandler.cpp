@@ -31,7 +31,8 @@ bool blockchainHandler::parseallOk(string str, string * errorString)
 		blocks_file >> BlockChainJSON;
 		if (!BlockChainJSON.empty()) { //chequea que no esté vacío así no crashea todo con el parser
 
-		//Recorro todos los elementos de la vectora y me fijo si cada diccionario tiene 7 keys
+			retVal = true;
+			//Recorro todos los elementos de la vectora y me fijo si cada diccionario tiene 7 keys
 			BlockChainJSON.size();
 			for (int i = 0; i < BlockChainJSON.size(); i++)
 			{
@@ -58,7 +59,6 @@ bool blockchainHandler::parseallOk(string str, string * errorString)
 				}
 			}
 
-			retVal = true;
 		}
 	}
 	catch (json::parse_error& e)
@@ -140,9 +140,9 @@ vector<vector<string>> blockchainHandler::makeMerkleTree(int blockNumber) {
 		//Agrego el nivel actual al vector
 		levels.push_back(currentLevel);
 	}
-
-	cout << "Nuestra merkle root: " << levels.back().back() << endl; 
-	cout << "La merkle root del bloque: " << BlockChainJSON[blockNumber]["merkleroot"] << endl; 
+	merkleroot = BlockChainJSON[blockNumber]["merkleroot"].get<string>();
+	//cout << "Nuestra merkle root: " << levels.back().back() << endl; 
+	//cout << "La merkle root del bloque: " << BlockChainJSON[blockNumber]["merkleroot"] << endl; 
 
 
 	return levels;

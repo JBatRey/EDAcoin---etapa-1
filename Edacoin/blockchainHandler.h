@@ -19,6 +19,7 @@ public:
 	bool parseallOk(string filepath, string * ErrorString = 0);
 	size_t chainSize(); 
 	json BlockChainJSON;
+	string getMerkleroot() { return merkleroot; }
 	vector<string> getKeys() { return keys; }
 	string hexCodexASCII(unsigned int);
 	vector<vector<string>> makeMerkleTree(int blockNumber);
@@ -26,6 +27,7 @@ public:
 	
 private:
 	vector<string> keys;
+	string merkleroot;
 	unsigned int generateID(unsigned char* str);
 	
 };

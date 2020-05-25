@@ -40,6 +40,7 @@ namespace fs = boost::filesystem;
 
 enum class Event { Close, ShowmerkleTree, Error, fileSelected, dummyEvent, BackToMainMenu };
 enum class Estado { MainMenu, FileView, Error };
+enum class POPS { Nothing, Merkle ,Failed };
 
 typedef struct {
 	string blockId;
@@ -118,14 +119,17 @@ private:
 	bool stillRunning;
 	bool correctlyInitialized;
 	bool WorkInProgress;
+	bool validate;
 	string directory;
 	vector<string> jsonPaths;
 	string filename;
 	BlockInfo displayInfo;
 	BlockTree displayTree;
 	vector<vector<Node>> NodeTree;
+	string stringPop;
 	Event EventoActual;
 	Estado EstadoActual;
+	POPS pop;
 	ImGuiWindowFlags window_flags;
 	string errorString;
 	blockchainHandler blockchainHandler;

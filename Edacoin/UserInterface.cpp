@@ -18,6 +18,8 @@ UserInterface::UserInterface()
 		Error = false;
 		close = false;
 		failed = false;
+		validate = false;
+		pop = POPS::Nothing;
 		EventoActual = Event::dummyEvent;
 		errorString = "";
 		EstadoActual = Estado::MainMenu;
@@ -373,36 +375,22 @@ void UserInterface::blockActions() {
 			//sin esta parte daria un error al querer leer filename con nada guardado.
 			printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
 			errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
-			failed = true;
+			pop = POPS::Failed;
 		}
-		
+
 	}
 
 	if (ImGui::Button("Calcular el Merkle root"))
 	{
 
 		if (checked != -1) {
-
-			ImGui::OpenPopup("Markel Root");
-
-			if (ImGui::BeginPopupModal("Markel Root", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				string makleRoot = blockchainHandler.makeMerkleTree(checked).back().back();
-				ImGui::Text(makleRoot.c_str());
-
-				if (ImGui::Button("OK", ImVec2(120, 0)))
-				{
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
-
+			pop = POPS::Merkle;
 		}
 		else {
 			//sin esta parte daria un error al querer leer filename con nada guardado.
 			printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
-			errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
-			failed = true;
+			errorString = "Select a radioButton to continue\n";
+			pop = POPS::Failed;
 		}
 	}
 
@@ -410,43 +398,22 @@ void UserInterface::blockActions() {
 	{
 
 		if (checked != -1) {
-			string ourMakleRoot = blockchainHandler.makeMerkleTree(checked).back().back();
-			string blockMakleRoot = string(blockchainHandler.BlockChainJSON[checked]["merkleroot"].get<string>());
-			
-			ImGui::OpenPopup("Root validation");
-
-			if (ImGui::BeginPopupModal("Root validation", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-			{
-				if (ourMakleRoot == blockMakleRoot) {
-
-				ImGui::Text("La makleroot del bloque es correcta!");
-				}
-				else {
-					ImGui::Text("La makleroot del bloque NO es correcta!");
-				}
-
-				if (ImGui::Button("OK", ImVec2(120, 0)))
-					{
-						errorString = "";
-						failed = false;
-						ImGui::CloseCurrentPopup();
-					}
-				ImGui::EndPopup();
-			}
-
+			pop = POPS::Merkle;
+			validate = true;
 		}
 		else {
 			//sin esta parte daria un error al querer leer filename con nada guardado.
 			printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
 			errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
-			failed = true;
+			pop = POPS::Failed;
+			validate = false;
 		}
 
 	}
 
 	if (ImGui::Button("Merkle Tree"))
 	{
-		
+
 		if (checked != -1) {
 			vector<vector<string>> tree = blockchainHandler.makeMerkleTree(checked);
 			printTree(tree);
@@ -455,11 +422,102 @@ void UserInterface::blockActions() {
 			//sin esta parte daria un error al querer leer filename con nada guardado.
 			printf("Tenes que seleccionar un radio button antes de clickear el boton\n");
 			errorString = "Tenes que seleccionar un radio button antes de clickear el boton\n";
-			failed = true;
+			pop = POPS::Failed;
 		}
 	}
 
-	if (failed == true)
+	switch (pop)
+	{
+	case POPS::Failed:
+			ImGui::OpenPopup("Failed");
+
+			if (ImGui::BeginPopupModal("Failed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				ImGui::Text(errorString.c_str());
+				ImGui::Separator();
+
+				if (ImGui::Button("OK", ImVec2(120, 0)))
+				{
+					errorString = "";
+					pop = POPS::Nothing;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+			break;
+	case POPS::Merkle:
+			ImGui::OpenPopup("Merkle root");
+
+			if (ImGui::BeginPopupModal("Merkle root", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+			{
+				string ourMakleRoot = blockchainHandler.makeMerkleTree(checked).back().back();
+				if (!validate)
+				{
+					ImGui::Text(("Nuestra merkle root: " + ourMakleRoot).c_str());
+					ImGui::Text(("La merkle root del bloque: " + blockchainHandler.getMerkleroot()).c_str());
+					ImGui::Separator();
+				}
+				else
+				{
+					string blockMakleRoot = blockchainHandler.getMerkleroot();
+
+					if (ourMakleRoot == blockMakleRoot) {
+
+						ImGui::Text("La makleroot del bloque es correcta!");
+					}
+					else {
+						ImGui::Text("La makleroot del bloque NO es correcta!");
+					}
+				}
+				if (ImGui::Button("OK", ImVec2(120, 0)))
+				{
+					stringPop = "";
+					pop = POPS::Nothing;
+					validate = false;
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+			break;
+	}
+
+	/*if (pop)
+	{
+		ImGui::OpenPopup("Merkle root");
+
+		if (ImGui::BeginPopupModal("Merkle root", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			string ourMakleRoot = blockchainHandler.makeMerkleTree(checked).back().back();
+			if (!validate)
+			{
+				ImGui::Text(("Nuestra merkle root: " + ourMakleRoot).c_str());
+				ImGui::Text(("La merkle root del bloque: " + blockchainHandler.getMerkleroot()).c_str());
+				ImGui::Separator();
+			}
+			else
+			{
+				string blockMakleRoot = blockchainHandler.getMerkleroot();
+
+				if (ourMakleRoot == blockMakleRoot) {
+
+					ImGui::Text("La makleroot del bloque es correcta!");
+				}
+				else {
+					ImGui::Text("La makleroot del bloque NO es correcta!");
+				}
+			}
+			if (ImGui::Button("OK", ImVec2(120, 0)))
+			{
+				stringPop = "";
+				pop = false;
+				validate = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+	}
+
+	if (failed)
 	{
 		ImGui::OpenPopup("Failed");
 
@@ -476,7 +534,7 @@ void UserInterface::blockActions() {
 			}
 			ImGui::EndPopup();
 		}
-	}
+	}*/
 
 
 }
