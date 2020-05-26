@@ -363,9 +363,9 @@ bool UserInterface::print_blockSelection(void)
 void UserInterface::blockActions() {
 
 	static int checked = -1;
-	for (int i = 0; i < blockchainHandler.getBlockChainJSON().size(); i++)
+	for (int i = 0; i < blockchainHandler.BlockChainJSON.size(); i++)
 	{
-		string blockId = string(blockchainHandler.getBlockChainJSON()[i]["blockid"].get<string>());
+		string blockId = string(blockchainHandler.BlockChainJSON[i]["blockid"].get<string>());
 		ImGui::RadioButton(blockId.c_str(), &checked, i);
 	}
 
@@ -556,11 +556,11 @@ bool UserInterface::ImguiInit(void)
 }
 
 void UserInterface::showBlockInfo(int index) {
-	displayInfo.blockId = "Block Id: " + blockchainHandler.getBlockChainJSON()[index]["blockid"].get<string>();
-	displayInfo.previousBlockId = "Previous block id: " + blockchainHandler.getBlockChainJSON()[index]["previousblockid"].get<string>();
-	displayInfo.NTransactions = "Number of transactions: " + to_string(blockchainHandler.getBlockChainJSON()[index]["nTx"].get<int>());
+	displayInfo.blockId = "Block Id: " + blockchainHandler.BlockChainJSON[index]["blockid"].get<string>();
+	displayInfo.previousBlockId = "Previous block id: " + blockchainHandler.BlockChainJSON[index]["previousblockid"].get<string>();
+	displayInfo.NTransactions = "Number of transactions: " + to_string(blockchainHandler.BlockChainJSON[index]["nTx"].get<int>());
 	displayInfo.BlockNumber = "Block number: " + to_string(index);
-	displayInfo.nonce = "Nonce: " + to_string(blockchainHandler.getBlockChainJSON()[index]["nonce"].get<int>());
+	displayInfo.nonce = "Nonce: " + to_string(blockchainHandler.BlockChainJSON[index]["nonce"].get<int>());
 	displayInfo.show = true;
 }
 

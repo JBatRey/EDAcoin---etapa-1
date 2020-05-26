@@ -16,7 +16,7 @@ public:
 	blockchainHandler();
 	bool parseallOk(string filepath, string * ErrorString = 0);
 	size_t chainSize();
-	json getBlockChainJSON() { return BlockChainJSON; }
+	json BlockChainJSON;
 	string getMerkleroot() { return merkleroot; }
 	vector<string> getKeys() { return keys; }
 	string hexCodexASCII(unsigned int);
@@ -24,7 +24,6 @@ public:
 
 	
 private:
-	json BlockChainJSON;
 	vector<string> keys;
 	string merkleroot;
 	unsigned int generateID(unsigned char* str);
