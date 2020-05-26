@@ -334,7 +334,8 @@ bool UserInterface::print_blockSelection(void)
 		
 		ImGui::BeginChild("Merkle Tree", ImVec2(600, 600), true, ImGuiWindowFlags_None);
 
-		ImGui::Text(displayTree.tree.c_str());
+		const char* tree = displayTree.tree.c_str();
+		ImGui::TextUnformatted(tree, tree+displayTree.tree.size());
 
 		ImGui::EndChild();
 
@@ -626,6 +627,7 @@ void UserInterface::printTree(vector<vector<string>> Tree) {
 	int H = Tree[0].size() * 2;
 	int W = Tree.size() * 2;
 	vector<vector<string>> stringMap(H, vector<string>(W,"     "));
+	displayTree.tree = "";
 	displayTree.show = true;
 	float counter = H;
 	for (int i = 0; i < Tree.size(); i++) {
