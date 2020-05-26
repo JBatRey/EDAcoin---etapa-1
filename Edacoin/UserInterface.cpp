@@ -98,7 +98,7 @@ void UserInterface::Dispatch(void)
 		break;
 
 	case Event::Error:
-		cout << "Hubo un error, capo (Event::Error)" << endl;
+		cout << "Hubo un error: (Event::Error)" << endl;
 		break;
 
 	case Event::fileSelected:
@@ -126,7 +126,6 @@ bool UserInterface::print_current_state(Estado CurrentState)
 		if (print_blockSelection()) userEvento = true;
 		break;
 	case Estado::Error:
-		//if(print_error()) userEvento = true;
 		break;
 	default:
 		break;
@@ -364,9 +363,9 @@ bool UserInterface::print_blockSelection(void)
 void UserInterface::blockActions() {
 
 	static int checked = -1;
-	for (int i = 0; i < blockchainHandler.BlockChainJSON.size(); i++)
+	for (int i = 0; i < blockchainHandler.getBlockChainJSON().size(); i++)
 	{
-		string blockId = string(blockchainHandler.BlockChainJSON[i]["blockid"].get<string>());
+		string blockId = string(blockchainHandler.getBlockChainJSON()[i]["blockid"].get<string>());
 		ImGui::RadioButton(blockId.c_str(), &checked, i);
 	}
 
@@ -486,63 +485,6 @@ void UserInterface::blockActions() {
 			}
 			break;
 	}
-
-	/*if (pop)
-	{
-		ImGui::OpenPopup("Merkle root");
-
-		if (ImGui::BeginPopupModal("Merkle root", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			string ourMakleRoot = blockchainHandler.makeMerkleTree(checked).back().back();
-			if (!validate)
-			{
-				ImGui::Text(("Nuestra merkle root: " + ourMakleRoot).c_str());
-				ImGui::Text(("La merkle root del bloque: " + blockchainHandler.getMerkleroot()).c_str());
-				ImGui::Separator();
-			}
-			else
-			{
-				string blockMakleRoot = blockchainHandler.getMerkleroot();
-
-				if (ourMakleRoot == blockMakleRoot) {
-
-					ImGui::Text("La makleroot del bloque es correcta!");
-				}
-				else {
-					ImGui::Text("La makleroot del bloque NO es correcta!");
-				}
-			}
-			if (ImGui::Button("OK", ImVec2(120, 0)))
-			{
-				stringPop = "";
-				pop = false;
-				validate = false;
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
-	}
-
-	if (failed)
-	{
-		ImGui::OpenPopup("Failed");
-
-		if (ImGui::BeginPopupModal("Failed", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			ImGui::Text(errorString.c_str());
-			ImGui::Separator();
-
-			if (ImGui::Button("OK", ImVec2(120, 0)))
-			{
-				errorString = "";
-				failed = false;
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
-	}*/
-
-
 }
 
 
@@ -614,19 +556,18 @@ bool UserInterface::ImguiInit(void)
 }
 
 void UserInterface::showBlockInfo(int index) {
-
-	displayInfo.blockId = "Block Id: " + blockchainHandler.BlockChainJSON[index]["blockid"].get<string>();
-	displayInfo.previousBlockId = "Previous block id: " + blockchainHandler.BlockChainJSON[index]["previousblockid"].get<string>();
-	displayInfo.NTransactions = "Number of transactions: " + to_string(blockchainHandler.BlockChainJSON[index]["nTx"].get<int>());
+	displayInfo.blockId = "Block Id: " + blockchainHandler.getBlockChainJSON()[index]["blockid"].get<string>();
+	displayInfo.previousBlockId = "Previous block id: " + blockchainHandler.getBlockChainJSON()[index]["previousblockid"].get<string>();
+	displayInfo.NTransactions = "Number of transactions: " + to_string(blockchainHandler.getBlockChainJSON()[index]["nTx"].get<int>());
 	displayInfo.BlockNumber = "Block number: " + to_string(index);
-	displayInfo.nonce = "Nonce: " + to_string(blockchainHandler.BlockChainJSON[index]["nonce"].get<int>());
+	displayInfo.nonce = "Nonce: " + to_string(blockchainHandler.getBlockChainJSON()[index]["nonce"].get<int>());
 	displayInfo.show = true;
 }
 
 void UserInterface::printTree(vector<vector<string>> Tree) {
 	int H = Tree[0].size() * 2;
 	int W = Tree.size() * 2;
-	vector<vector<string>> stringMap(H, vector<string>(W,"     "));
+	vector<vector<string>> stringMap(H, vector<string>(W, "     "));
 	displayTree.tree = "";
 	displayTree.show = true;
 	float counter = H;
@@ -646,7 +587,5 @@ void UserInterface::printTree(vector<vector<string>> Tree) {
 		}
 		displayTree.tree += "\n\r";
 	}
-
-	cout << displayTree.tree;
 
 }

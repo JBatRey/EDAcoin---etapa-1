@@ -59,30 +59,6 @@ typedef struct {
 class UserInterface
 {
 
-	struct Node
-	{
-		string data;
-		Node* left, * right;
-
-		Node(string data = "")
-		{
-			this->data = data;
-			this->left = this->right = nullptr;
-		}
-	};
-
-	struct Trunk
-	{
-		Trunk* prev;
-		string str;
-
-		Trunk(Trunk* prev, string str)
-		{
-			this->prev = prev;
-			this->str = str;
-		}
-	};
-
 public:
 	UserInterface();
 	~UserInterface();
@@ -102,8 +78,6 @@ private:
 	void blockActions();
 	void showBlockInfo(int index);
 	void printTree(vector<vector<string>> Tree);
-	void showTrunks(Trunk* p);
-	void printTreeConsole(Node* root, Trunk* prev, bool isLeft);
 
 	ALLEGRO_TIMER* timer;
 	ALLEGRO_EVENT_QUEUE* queue;
@@ -125,7 +99,6 @@ private:
 	string filename;
 	BlockInfo displayInfo;
 	BlockTree displayTree;
-	vector<vector<Node>> NodeTree;
 	string stringPop;
 	Event EventoActual;
 	Estado EstadoActual;
@@ -134,4 +107,3 @@ private:
 	string errorString;
 	blockchainHandler blockchainHandler;
 };
-
