@@ -98,7 +98,7 @@ void UserInterface::Dispatch(void)
 		break;
 
 	case Event::Error:
-		cout << "Hubo un error: (Event::Error)" << endl;
+		//cout << "Hubo un error: (Event::Error)" << endl;
 		break;
 
 	case Event::fileSelected:
@@ -276,8 +276,8 @@ bool UserInterface::print_SelectJsons(vector<string>& nombres)
 			eventHappened = false;
 		}
 		
-		cout << filename << endl;
-		cout << "full path: " << endl << directory + "\\" + filename << endl;
+		//cout << filename << endl;
+		//cout << "full path: " << endl << directory + "\\" + filename << endl;
 	}
 	else {
 		eventHappened = false;

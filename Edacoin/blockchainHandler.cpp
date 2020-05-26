@@ -38,7 +38,7 @@ bool blockchainHandler::parseallOk(string str, string * errorString)
 			{
 				if (BlockChainJSON[i].size() != 7)
 				{
-					cout << "Error uno de los bloques tiene menos de 7 keys" << endl;
+					//cout << "Error uno de los bloques tiene menos de 7 keys" << endl;
 					*errorString = "Error parsing \nwrong key number!";
 					retVal = false;
 				}
@@ -52,7 +52,7 @@ bool blockchainHandler::parseallOk(string str, string * errorString)
 				{
 					if (item.find(keys[i]) == item.end())
 					{
-						cout << "Error, una de las keys no corresponde con lo esperado" << endl;
+						//cout << "Error, una de las keys no corresponde con lo esperado" << endl;
 						*errorString = "Error parsing \nwrong key value!";
 						retVal = false;
 					}

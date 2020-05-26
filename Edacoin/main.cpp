@@ -11,13 +11,13 @@ int main(void) {
 
     if (!gui.GetError())
     {
-        cout << "Gui correctly initialized!" << endl;
+        //cout << "Gui correctly initialized!" << endl;
         while (gui.Running()) {
         
         }
     }
     else {
-        cout << "Error, couldn't initialize Gui object!" << endl;
+        //cout << "Error, couldn't initialize Gui object!" << endl;
     }
 
     return 0;
